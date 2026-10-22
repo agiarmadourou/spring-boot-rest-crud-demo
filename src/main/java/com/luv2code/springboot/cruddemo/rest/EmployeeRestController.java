@@ -4,19 +4,23 @@ import com.luv2code.springboot.cruddemo.entity.Employee;
 import com.luv2code.springboot.cruddemo.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class EmployeeRestController {
     // define fields - use of EmployeeService
     private EmployeeService employeeService;
+    private JsonMapper  jsonMapper;  // from Jackson library for JSON processing
 
     // constructor injection
     @Autowired
-    public void setEmployeeService(EmployeeService theEmployeeService) {
+    public void setEmployeeService(EmployeeService theEmployeeService, JsonMapper theJsonMapper) {
         employeeService = theEmployeeService;
+        jsonMapper = theJsonMapper;
     }
 
     // expose "/employees" and return a list of employees
@@ -54,7 +58,26 @@ public class EmployeeRestController {
         return dbEmployee;
     }
 
+    // add mapping for PATCH
+    @PatchMapping("/employees/{empooyeeId}")
+    public Employee patchEmployee(@PathVariable int empooyeeId,
+                                  @RequestBody Map<String, Object> patchPayload) {
+        Employee tempEmployee = employeeService.findById(empooyeeId);
 
+        // throw exception if null
+        if (tempEmployee == null) {
+            throw new RuntimeException("Employee id not found - " + empooyeeId);
+        }
+
+        // throw exception if request body contains "id" key - id cannot be updated
+        if (patchPayload.containsKey("id")){
+            throw new RuntimeException("Employee id cannot be updated - " + empooyeeId);
+        }
+
+        Employee patchedEmployee = jsonMapper.updateValue(tempEmployee, patchPayload);
+        Employee dbEmployee = employeeService.save(patchedEmployee);
+        return dbEmployee;
+    }
 
 
 }
