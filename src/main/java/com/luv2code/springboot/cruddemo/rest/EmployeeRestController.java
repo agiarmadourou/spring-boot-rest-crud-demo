@@ -59,25 +59,40 @@ public class EmployeeRestController {
     }
 
     // add mapping for PATCH
-    @PatchMapping("/employees/{empooyeeId}")
-    public Employee patchEmployee(@PathVariable int empooyeeId,
+    @PatchMapping("/employees/{employeeId}")
+    public Employee patchEmployee(@PathVariable int employeeId,
                                   @RequestBody Map<String, Object> patchPayload) {
-        Employee tempEmployee = employeeService.findById(empooyeeId);
+        Employee tempEmployee = employeeService.findById(employeeId);
 
         // throw exception if null
         if (tempEmployee == null) {
-            throw new RuntimeException("Employee id not found - " + empooyeeId);
+            throw new RuntimeException("Employee id not found - " + employeeId);
         }
 
         // throw exception if request body contains "id" key - id cannot be updated
         if (patchPayload.containsKey("id")){
-            throw new RuntimeException("Employee id cannot be updated - " + empooyeeId);
+            throw new RuntimeException("Employee id cannot be updated - " + employeeId);
         }
 
         Employee patchedEmployee = jsonMapper.updateValue(tempEmployee, patchPayload);
         Employee dbEmployee = employeeService.save(patchedEmployee);
         return dbEmployee;
     }
+
+    // add mapping for DELETE /employees/{employeeId}  -  delete employee
+    @DeleteMapping("/employees/{employeeId}")
+    public String deleteEmployee(@PathVariable int employeeId) {
+        Employee tempEmployee = employeeService.findById(employeeId);
+
+        // throw exception if null
+        if (tempEmployee == null) {
+            throw new RuntimeException("Employee id not found - " + employeeId);
+        }
+
+        employeeService.deleteById(employeeId);
+        return "Deleted employee id - " + employeeId;
+    }
+
 
 
 }
