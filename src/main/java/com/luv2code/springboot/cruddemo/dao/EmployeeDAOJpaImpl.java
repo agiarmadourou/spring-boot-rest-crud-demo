@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// JPA-based implementation of EmployeeDAO using EntityManager
 @Repository
 public class EmployeeDAOJpaImpl implements EmployeeDAO {
     // define field for entitymanager

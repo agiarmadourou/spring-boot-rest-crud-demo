@@ -4,6 +4,7 @@ import com.luv2code.springboot.cruddemo.entity.Employee;
 
 import java.util.List;
 
+// Data access contract for Employee persistence operations
 public interface EmployeeDAO {
 
     List<Employee> findAll();
